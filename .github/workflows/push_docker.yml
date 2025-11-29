@@ -32,4 +32,4 @@ jobs:
           context: .
           push: true
           # Remplacez ci-dessous par VOTRE nom complet Docker Hub
-          tags: remibertaud/comfy-runpod_0.1
+          tags: remibertaud/comfy-runpod:0.1
