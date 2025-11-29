@@ -4,9 +4,12 @@
 FROM runpod/worker-comfyui:5.5.0-base-cuda12.8.1
 
 # ==============================================================================
-# 1. PRÉ-REQUIS SYSTÈME
+# 1. PRÉ-REQUIS SYSTÈME (AVEC COMPILATEURS)
 # ==============================================================================
+# Ajout de 'build-essential' et 'python3-dev' pour pouvoir compiler SAM2
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
     libgl1 \
     libglib2.0-0 \
     libsndfile1 \
@@ -110,8 +113,7 @@ RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 7. SeedVR2 (CORRIGÉ avec le bon repo) ---
-# Le dossier cloné sera 'ComfyUI-SeedVR2_VideoUpscaler'
+# --- 7. SeedVR2 ---
 RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
     cd ComfyUI-SeedVR2_VideoUpscaler && \
     if [ -f requirements.txt ]; then \
@@ -123,8 +125,15 @@ RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
 # ==============================================================================
 # 6. DÉPENDANCES PYTHON LOURDES
 # ==============================================================================
+# InsightFace lib
 RUN pip install insightface onnxruntime-gpu --no-deps
+
+# SAM2 : Installation avec compilation CUDA désactivée pour éviter le crash
+# (Cela utilise les ops PyTorch natifs, ce qui est très performant et compatible 5090)
+ENV SAM2_BUILD_CUDA=0
 RUN pip install "git+https://github.com/facebookresearch/sam2@2b90b9f5ceec907a1c18123530e92e794ad901a4" --no-deps
+
+# SenseVoice
 RUN pip install "git+https://github.com/shadowcz007/SenseVoice-python.git@43f6cf1531e7e4a7d7507d37fbc9b0fb169166ab" --no-deps
 
 # ==============================================================================
