@@ -4,7 +4,7 @@
 FROM runpod/worker-comfyui:5.5.0-base-cuda12.8.1
 
 # ==============================================================================
-# 1. PRÉ-REQUIS SYSTÈME
+# 1. PRÉ-REQUIS SYSTÈME (AVEC COMPILATEURS)
 # ==============================================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -73,7 +73,7 @@ RUN git clone https://github.com/princepainter/Comfyui-PainterSampler.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 3. ComfyRoll (CORRECTION ICI : URL Rétablie) ---
+# --- 3. ComfyRoll ---
 RUN git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes.git && \
     cd ComfyUI_Comfyroll_CustomNodes && \
     git checkout d78b780ae43fcf8c6b7c6505e6ffb4584281ceca && \
@@ -122,17 +122,21 @@ RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
     fi && cd ..
 
 # ==============================================================================
-# 6. DÉPENDANCES PYTHON LOURDES & SAM2
+# 6. DÉPENDANCES PYTHON LOURDES (MANUELLES)
 # ==============================================================================
+WORKDIR /comfyui
 
-# InsightFace lib
+# 1. InsightFace lib
 RUN pip install insightface onnxruntime-gpu --no-deps
 
-# SenseVoice
-RUN pip install "git+https://github.com/shadowcz007/SenseVoice-python.git@43f6cf1531e7e4a7d7507d37fbc9b0fb169166ab" --no-deps
+# 2. SenseVoice (Correction : Méthode Manuelle)
+RUN git clone https://github.com/shadowcz007/SenseVoice-python.git && \
+    cd SenseVoice-python && \
+    git checkout 43f6cf1531e7e4a7d7507d37fbc9b0fb169166ab && \
+    pip install . --no-deps && \
+    cd ..
 
-# --- INSTALLATION SAM 2 (MÉTHODE ROBUSTE V18) ---
-WORKDIR /comfyui
+# 3. SAM 2 (Méthode Manuelle Blindée)
 ENV SAM2_BUILD_CUDA=0
 RUN git clone https://github.com/facebookresearch/sam2.git && \
     cd sam2 && \
