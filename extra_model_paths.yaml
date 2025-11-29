@@ -1,0 +1,57 @@
+comfyui:
+    # 1. RACINE DU VOLUME (Selon doc RunPod Serverless)
+    base_path: /workspace/models
+
+    # 2. VOTRE MODIFICATION CRITIQUE
+    # ComfyUI cherche "checkpoints", on l'envoie vers "checkpoint" (sans s)
+    checkpoints: checkpoint/
+
+    # 3. LE RESTE DE VOTRE STRUCTURE (37 dossiers)
+    
+    # Standards ComfyUI
+    loras: loras/
+    vae: vae/
+    configs: configs/
+    controlnet: controlnet/
+    upscale_models: upscale_models/
+    embeddings: embeddings/
+    hypernetworks: hypernetworks/
+    style_models: style_models/
+    gligen: gligen/
+    vae_approx: vae_approx/
+    clip_vision: clip_vision/
+    photomaker: photomaker/
+
+    # Groupe Diffusion / UNET
+    diffusion_models: |
+        diffusion_models/
+        unet/
+        diffusers/
+        CogVideo/
+        ComfyUI_FluxMod/
+
+    # Groupe Texte / CLIP
+    text_encoders: |
+        text_encoders/
+        clip/
+        LLM/
+        blip/
+
+    # Custom Nodes & Spécifiques
+    animatediff_models: animatediff_models/
+    animatediff_motion_lora: animatediff_motion_lora/
+    animatediff_video_formats: animatediff_video_formats/
+    
+    depthanything: depthanything/
+    flashvsr: FlashVSR-v1.1/
+    insightface: insightface/
+    ipadapter: ipadapter/
+    joy_caption: Joy_caption/
+    layerstyle: layerstyle/
+    liveportrait: liveportrait/
+    onnx: onnx/
+    rgt: RGT/
+    sams: sams/
+    seedvr2: SEEDVR2/
+    ultralytics: ultralytics/
+    xlabs: xlabs/
