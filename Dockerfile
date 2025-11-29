@@ -4,9 +4,8 @@
 FROM runpod/worker-comfyui:5.5.0-base-cuda12.8.1
 
 # ==============================================================================
-# 1. PRÉ-REQUIS SYSTÈME (AVEC OUTILS DE COMPILATION)
+# 1. PRÉ-REQUIS SYSTÈME
 # ==============================================================================
-# 'build-essential' et 'python3-dev' sont vitaux pour installer SAM2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
@@ -74,5 +73,72 @@ RUN git clone https://github.com/princepainter/Comfyui-PainterSampler.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 3. ComfyRoll ---
-RUN git clone
+# --- 3. ComfyRoll (CORRECTION ICI : URL Rétablie) ---
+RUN git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes.git && \
+    cd ComfyUI_Comfyroll_CustomNodes && \
+    git checkout d78b780ae43fcf8c6b7c6505e6ffb4584281ceca && \
+    if [ -f requirements.txt ]; then \
+        sed -i 's/[<>=]=.*//' requirements.txt && \
+        sed -i '/torch/d' requirements.txt && \
+        pip install -r requirements.txt; \
+    fi && cd ..
+
+# --- 4. RES4LYF ---
+RUN git clone https://github.com/ClownsharkBatwing/RES4LYF.git && \
+    cd RES4LYF && \
+    git checkout 46de917234f9fef3f2ab411c41e07aa3c633f4f7 && \
+    if [ -f requirements.txt ]; then \
+        sed -i 's/[<>=]=.*//' requirements.txt && \
+        sed -i '/torch/d' requirements.txt && \
+        pip install -r requirements.txt; \
+    fi && cd ..
+
+# --- 5. CG-Use-Everywhere ---
+RUN git clone https://github.com/chrisgoringe/cg-use-everywhere.git && \
+    cd cg-use-everywhere && \
+    git checkout 3f08687258941011538c232379361668e1462066 || echo "Fallback latest" && \
+    if [ -f requirements.txt ]; then \
+        sed -i 's/[<>=]=.*//' requirements.txt && \
+        sed -i '/torch/d' requirements.txt && \
+        pip install -r requirements.txt; \
+    fi && cd ..
+
+# --- 6. DyPE ---
+RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
+    cd ComfyUI-DyPE && \
+    if [ -f requirements.txt ]; then \
+        sed -i 's/[<>=]=.*//' requirements.txt && \
+        sed -i '/torch/d' requirements.txt && \
+        pip install -r requirements.txt; \
+    fi && cd ..
+
+# --- 7. SeedVR2 ---
+RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
+    cd ComfyUI-SeedVR2_VideoUpscaler && \
+    if [ -f requirements.txt ]; then \
+        sed -i 's/[<>=]=.*//' requirements.txt && \
+        sed -i '/torch/d' requirements.txt && \
+        pip install -r requirements.txt; \
+    fi && cd ..
+
+# ==============================================================================
+# 6. DÉPENDANCES PYTHON LOURDES & SAM2
+# ==============================================================================
+
+# InsightFace lib
+RUN pip install insightface onnxruntime-gpu --no-deps
+
+# SenseVoice
+RUN pip install "git+https://github.com/shadowcz007/SenseVoice-python.git@43f6cf1531e7e4a7d7507d37fbc9b0fb169166ab" --no-deps
+
+# --- INSTALLATION SAM 2 (MÉTHODE ROBUSTE V18) ---
+WORKDIR /comfyui
+ENV SAM2_BUILD_CUDA=0
+RUN git clone https://github.com/facebookresearch/sam2.git && \
+    cd sam2 && \
+    pip install -e .
+
+# ==============================================================================
+# 7. FIN
+# ==============================================================================
+WORKDIR /comfyui
