@@ -101,7 +101,7 @@ RUN git clone https://github.com/chrisgoringe/cg-use-everywhere.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 6. DyPE (Repo corrigé) ---
+# --- 6. DyPE ---
 RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
     cd ComfyUI-DyPE && \
     if [ -f requirements.txt ]; then \
@@ -110,11 +110,10 @@ RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# (Suppression du bloc InsightFace git clone qui n'existe plus)
-
-# --- 7. SeedVR2 ---
-RUN git clone https://github.com/StartHua/seedvr2_videoupscaler.git && \
-    cd seedvr2_videoupscaler && \
+# --- 7. SeedVR2 (CORRIGÉ avec le bon repo) ---
+# Le dossier cloné sera 'ComfyUI-SeedVR2_VideoUpscaler'
+RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
+    cd ComfyUI-SeedVR2_VideoUpscaler && \
     if [ -f requirements.txt ]; then \
         sed -i 's/[<>=]=.*//' requirements.txt && \
         sed -i '/torch/d' requirements.txt && \
@@ -124,10 +123,7 @@ RUN git clone https://github.com/StartHua/seedvr2_videoupscaler.git && \
 # ==============================================================================
 # 6. DÉPENDANCES PYTHON LOURDES
 # ==============================================================================
-# La librairie insightface est installée ici, c'est suffisant pour ReActor/IPAdapter
 RUN pip install insightface onnxruntime-gpu --no-deps
-
-# SAM2 & SenseVoice
 RUN pip install "git+https://github.com/facebookresearch/sam2@2b90b9f5ceec907a1c18123530e92e794ad901a4" --no-deps
 RUN pip install "git+https://github.com/shadowcz007/SenseVoice-python.git@43f6cf1531e7e4a7d7507d37fbc9b0fb169166ab" --no-deps
 
