@@ -1,21 +1,20 @@
 # ==============================================================================
-# IMAGE DE BASE : Optimisée pour RTX 5090 (CUDA 12.8)
+# IMAGE DE BASE : Optimisée pour RTX 5090 (CUDA 12.8) - Version 5.5.1
 # ==============================================================================
-FROM runpod/worker-comfyui:5.5.0-base-cuda12.8.1
+FROM runpod/worker-comfyui:5.5.1-base-cuda12.8.1
 
 # ==============================================================================
 # 1. PRÉ-REQUIS SYSTÈME (VITAL)
 # ==============================================================================
-# On garde cmake/build-essential pour SAM2, c'est plus sûr
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev \
-    cmake \
     libgl1 \
     libglib2.0-0 \
     libsndfile1 \
     ffmpeg \
     git \
+    cmake \
+    build-essential \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ==============================================================================
@@ -29,7 +28,7 @@ RUN /usr/bin/yes | comfy --workspace /comfyui update all
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 
 # ==============================================================================
-# 4. INSTALLATION DES NODES DU REGISTRE (CNR)
+# 4. INSTALLATION DES NODES DU REGISTRE (CNR) - AUTOMATIQUE
 # ==============================================================================
 RUN comfy node install \
     comfyui-manager \
@@ -38,6 +37,7 @@ RUN comfy node install \
     comfyui_controlnet_aux \
     comfyui-videohelpersuite \
     comfyui-impact-pack \
+    comfyui-impact-subpack \
     comfyui-inspire-pack \
     rgthree-comfy \
     comfyui-depthanythingv2 \
@@ -48,10 +48,12 @@ RUN comfy node install \
     comfyui-custom-scripts \
     comfyui_ipadapter_plus \
     comfyui-animatediff-evolved \
-    comfyui-reactor-node
+    comfyui-reactor-node \
+    cg-use-everywhere \
+    comfyui-comfyroll
 
 # ==============================================================================
-# 5. INSTALLATION MANUELLE STANDARDISÉE
+# 5. INSTALLATION MANUELLE (NODES SPÉCIFIQUES)
 # ==============================================================================
 WORKDIR /comfyui/custom_nodes
 
@@ -78,17 +80,7 @@ RUN git clone https://github.com/princepainter/Comfyui-PainterSampler.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 3. ComfyRoll ---
-RUN git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes.git && \
-    cd ComfyUI_Comfyroll_CustomNodes && \
-    git checkout d78b780ae43fcf8c6b7c6505e6ffb4584281ceca && \
-    if [ -f requirements.txt ]; then \
-        sed -i 's/[<>=]=.*//' requirements.txt && \
-        sed -i '/torch/d' requirements.txt && \
-        pip install -r requirements.txt; \
-    fi && cd ..
-
-# --- 4. RES4LYF ---
+# --- 3. RES4LYF ---
 RUN git clone https://github.com/ClownsharkBatwing/RES4LYF.git && \
     cd RES4LYF && \
     git checkout 46de917234f9fef3f2ab411c41e07aa3c633f4f7 && \
@@ -98,17 +90,7 @@ RUN git clone https://github.com/ClownsharkBatwing/RES4LYF.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 5. CG-Use-Everywhere ---
-RUN git clone https://github.com/chrisgoringe/cg-use-everywhere.git && \
-    cd cg-use-everywhere && \
-    git checkout 3f08687258941011538c232379361668e1462066 || echo "Fallback latest" && \
-    if [ -f requirements.txt ]; then \
-        sed -i 's/[<>=]=.*//' requirements.txt && \
-        sed -i '/torch/d' requirements.txt && \
-        pip install -r requirements.txt; \
-    fi && cd ..
-
-# --- 6. DyPE ---
+# --- 4. DyPE ---
 RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
     cd ComfyUI-DyPE && \
     if [ -f requirements.txt ]; then \
@@ -117,7 +99,7 @@ RUN git clone https://github.com/wildminder/ComfyUI-DyPE.git && \
         pip install -r requirements.txt; \
     fi && cd ..
 
-# --- 7. SeedVR2 ---
+# --- 5. SeedVR2 ---
 RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
     cd ComfyUI-SeedVR2_VideoUpscaler && \
     if [ -f requirements.txt ]; then \
@@ -131,14 +113,8 @@ RUN git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git && \
 # ==============================================================================
 WORKDIR /comfyui
 
-# InsightFace lib (Gardé car vital)
+# InsightFace lib
 RUN pip install insightface onnxruntime-gpu --no-deps
-
-# SAM 2 (Gardé car vous avez le dossier 'sams')
-ENV SAM2_BUILD_CUDA=0
-RUN git clone https://github.com/facebookresearch/sam2.git && \
-    cd sam2 && \
-    pip install -e .
 
 # ==============================================================================
 # 7. FIN
