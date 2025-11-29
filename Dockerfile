@@ -4,13 +4,12 @@
 FROM runpod/worker-comfyui:5.5.0-base-cuda12.8.1
 
 # ==============================================================================
-# 1. PRÉ-REQUIS SYSTÈME (Indispensables pour vos libs Python)
+# 1. PRÉ-REQUIS SYSTÈME (CORRIGÉ)
 # ==============================================================================
-# libgl1/glib2 -> Pour OpenCV (InsightFace, ReActor, Impact)
-# libsndfile1 -> Pour Soundfile (SenseVoice)
-# ffmpeg -> Pour VideoHelperSuite, Animatediff
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+# CORRECTION ICI : 'libgl1-mesa-glx' remplacé par 'libgl1' pour éviter l'erreur 100
+# Ajout de '--no-install-recommends' pour éviter d'installer des paquets inutiles
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
     libglib2.0-0 \
     libsndfile1 \
     ffmpeg \
